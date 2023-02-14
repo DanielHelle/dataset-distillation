@@ -181,7 +181,7 @@ def format_stepwise_results(state, steps, info, res):
     accs = res[1] * 100
     losses = res[2]
     acc_mus = accs.mean(1)
-    acc_stds = accs.std(1, unbiased=True)
+    acc_stds = accs.std(1, unbiased=True) #print out this value, search for NaN
     loss_mus = losses.mean(1)
     loss_stds = losses.std(1, unbiased=True)
 
