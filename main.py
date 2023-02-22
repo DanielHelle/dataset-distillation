@@ -380,7 +380,7 @@ def main(state):
             else:
                 results = (
                     ress[0][0],                          # at_steps
-                    torch.cat([v[1] for v in ress], 1),  # accs
+                    torch.cat([v[1] for v in ress], 1),  # accs 
                     torch.cat([v[2] for v in ress], 1),  # losses
                 )
             logging.info('')

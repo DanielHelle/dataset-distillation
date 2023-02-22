@@ -261,7 +261,8 @@ class Trainer(object):
                     t.div_(grad_divisor)
 
             # opt step
-            self.optimizer.step()
+           
+            self.optimizer.step() #self.scheduler.step()
             t = time.time() - t0
 
             if do_log_this_iter:

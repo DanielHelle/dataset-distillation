@@ -5,5 +5,6 @@ from . import logging
 from . import multiprocessing
 from .utils import *
 
-pm = u'±'
+#pm = '\xb1'
+pm = u'±' # Potentially change to ascii compatible '\\xb1'
 nan = float('nan')
