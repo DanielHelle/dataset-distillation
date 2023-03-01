@@ -186,13 +186,25 @@ class PASCALVoc2007(data.Dataset):
             set, len(self.classes), len(self.bndboxes)))
 
     def __getitem__(self, index):
-        path, crop, target = self.bndboxes[index]
+        #previous value for target was same as categories
+        target = {}
+        path, bndbox, categories = self.bndboxes[index]
+
+      
+
         img = Image.open(os.path.join(self.path_images, path + '.jpg')).convert('RGB')
-        img = img.crop(crop)
+        #img = img.crop(crop)
         if self.transform is not None:
-            img = self.transform(img)
+            img = self.transform(img) #check if different transformations need to be applied because img is larger and is not a crop
         if self.target_transform is not None:
-            target = self.target_transform(target)
+            target = self.target_transform(categories)
+        
+        target["categories"] = categories
+        target["bndbox"] = bndbox
+
+        
+
+        
         return img, target
 
     def __len__(self):
