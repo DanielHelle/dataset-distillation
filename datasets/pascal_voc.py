@@ -13,6 +13,7 @@ import torch.utils.data as data
 import torchvision
 from PIL import Image
 from six.moves.urllib.parse import urlparse
+from collections import OrderedDict
 
 object_categories = ['aeroplane', 'bicycle', 'bird', 'boat',
                      'bottle', 'bus', 'car', 'cat', 'chair',
@@ -149,8 +150,12 @@ def read_split(root, dataset, split):
 
 def read_bndbox(root, dataset, paths):
     xml_base = os.path.join(root, 'VOCdevkit', dataset, 'Annotations')
-    instances = []
+    
+    target = OrderedDict()
     for path in paths:
+        instaces = []
+        img_path = os.path.join(os.path.join(root, 'VOCdevkit', 'VOC2007', 'JPEGImages'), path + '.jpg')
+        
         xml = ET.parse(os.path.join(xml_base, path + '.xml'))
         for obj in xml.findall('object'):
             c = obj[0]
@@ -161,8 +166,9 @@ def read_bndbox(root, dataset, paths):
             ymin = int(bndbox[1].text)  # top
             xmax = int(bndbox[2].text)  # right
             ymax = int(bndbox[3].text)  # bottom
-            instances.append((path, (xmin, ymin, xmax, ymax), c))
-    return instances
+            instances.append((xmin, ymin, xmax, ymax), c)
+        target[img_path] = instaces
+    return target
 
 
 class PASCALVoc2007(data.Dataset):
@@ -187,24 +193,16 @@ class PASCALVoc2007(data.Dataset):
 
     def __getitem__(self, index):
         #previous value for target was same as categories
-        target = {}
-        path, bndbox, categories = self.bndboxes[index]
 
-      
-
-        img = Image.open(os.path.join(self.path_images, path + '.jpg')).convert('RGB')
+        img_path, target = self.bndboxes.items()[index]
+        img = Image.open(img_path).convert('RGB')
         #img = img.crop(crop)
         if self.transform is not None:
-            img = self.transform(img) #check if different transformations need to be applied because img is larger and is not a crop
+            img = self.transform(img)
         if self.target_transform is not None:
-            target = self.target_transform(categories)
-        
-        target["categories"] = categories
-        target["bndbox"] = bndbox
+            for idx,t in enumerate(target):
+                target[idx][1] = self.target_transform(t[1])
 
-        
-
-        
         return img, target
 
     def __len__(self):
